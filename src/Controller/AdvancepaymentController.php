@@ -24,7 +24,7 @@
 			$this->viewBuilder()->setLayout('secondary_customer');
 
 		}
-		
+		   
 		//Before Filter Method
 		public function beforeFilter($event) {
 			parent::beforeFilter($event);

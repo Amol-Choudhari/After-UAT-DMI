@@ -149,7 +149,7 @@
 		
 		// APPLICATION TYPE
 		public function applicationType($id) {
-
+            
 			$this->Session->delete('section_id');
 			$this->Session->delete('paymentforchange');
 			$this->Session->write('application_type',$id);
@@ -168,17 +168,21 @@
 			$this->redirect('/application/application-for-certificate');
 		}
 
-		
+		 
 		// APPLICATION FOR CERTIFICATE
 		public function applicationForCertificate() {
 
+
+            
 			$customer_id = $this->Customfunctions->sessionCustomerID();
-			$this->set('customer_id',$customer_id);
 			
+			$this->set('customer_id',$customer_id);
 			$oldapplication = $this->Customfunctions->isOldApplication($customer_id);
+			
 			$this->set('oldapplication',$oldapplication);
 
 			$authRegFirm = $this->Mastertablecontent->authFirmRegistration($customer_id);
+			
 			$this->set('authRegFirm',$authRegFirm);
 
 			if (strpos(base64_decode($this->Session->read('username')), '@') !== false) {//for email encoding
@@ -199,6 +203,7 @@
 			$this->loadModel('DmiChemistRegistrations');
 
 			$application_type = $this->Session->read('application_type');
+			
 			$this->set('application_type',$application_type);
 			
 			// check current form section value
@@ -236,6 +241,7 @@
 			}
 
 			$added_directors_details = $DmiAllDirectorsDetails->allDirectorsDetail($customer_id);
+			
 			$this->set('added_directors_details',$added_directors_details);
 			$office_type = $this->Customfunctions->getApplDistrictOffice($customer_id);
 			$firm_type = $this->Customfunctions->firmType($customer_id);
@@ -247,9 +253,9 @@
 			$ca_bevo_applicant = $this->Customfunctions->checkCaBevo($customer_id);
 			$this->set('ca_bevo_applicant',$ca_bevo_applicant);
 			$applicant_type = $this->Customfunctions->checkFatSpreadOrBevo($customer_id);//call fucntion to check bevo or fat spread
+			
 			$this->set('applicant_type',$applicant_type);
 
-			
 
 			if ($form_type=='F' && $ca_bevo_applicant=='yes') {
 				$form_type='E';
@@ -290,25 +296,33 @@
 				$form_type='CHM';
 			}
 			
+			// added for ADP flow as application_type is 8 by shankhpal on 09/11/2022
+			if ($application_type == 8) {
+               
+				$form_type='ADP';
+			}
 			$this->set('form_type',$form_type);
 			
 			$firm_type_text = $this->Customfunctions->firmTypeText($customer_id);
+			
 			$final_submit_details = $this->Customfunctions->finalSubmitDetails($customer_id,'application_form');
+			
 			$this->set('final_submit_details',$final_submit_details);
 
 			$section_details = $this->DmiCommonScrutinyFlowDetails->currentSectionDetails($application_type,$office_type,$firm_type,$form_type,$section_id);
-
+			
 			// get all section all details
 			$allSectionDetails = $this->DmiCommonScrutinyFlowDetails->allSectionList($application_type,$office_type,$firm_type,$form_type);
-
+			
 			$section_model = $section_details['section_model'];
+			
 			$section = $section_details['section_name'];
-
+		
 			$this->loadModel($section_model);
 
 			// get section details
 			$section_form_details = $this->$section_model->sectionFormDetails($customer_id);
-
+			
 
 			// if return value 1 (all forms saved), return value 2 (all forms approved), return value 0 (all forms not saved or approved)
 			$all_section_status = $this->Customfunctions->formStatusValue($allSectionDetails,$customer_id);
@@ -422,7 +436,7 @@
 
 			
 			if (null !== $this->request->getData('save')) {
-
+                
 				$result = $this->$section_model->saveFormDetails($customer_id,$this->request->getData());
 
 				if (is_array($result)=='') {
@@ -586,16 +600,24 @@
 					$this->Session->delete('edit_chemist_id');
 					$this->Redirect('/application/application-for-certificate');
 				}
-			}
 
+
+			} //This condition handel post request for add more button of Person details added by shankhpal shende on 10/11/2022
+			elseif ($this->request->getData('add_person_details')){
+				$this->loadModel('DmiAdpPersonDetails');
+				$save_details_result = $this->DmiAdpPersonDetails->savePersonDetails($customer_id,$this->request->getData());
+				
+			}
+      
 			$this->set('message_theme',$message_theme);
 			$this->set('message',$message);
 			$this->set('redirect_to',$redirect_to);
 			$this->set('application_type',$application_type);
-
+ 
 			// PRIOR TO THE CAKEPHP 4, "$this->view" IS NOT WORKING,
 			// SO ADDED "render" PROPERTY TO POP UP FORM RELATED MESSAGES
 			// by Aniket Ganvir dated 29th JAN 2021
+
 			if ($message != null) {
 				$this->render('/element/message_boxes');
 			}
@@ -646,7 +668,7 @@
 				$this->loadModel('DmiFlowWiseTablesLists');
 
 				$section_details = $this->DmiCommonScrutinyFlowDetails->currentSectionDetails($application_type,$office_type,$firm_type,$form_type,1);
-
+                
 				$allSectionDetails = $this->DmiCommonScrutinyFlowDetails->allSectionList($application_type,$office_type,$firm_type,$form_type);
 
 				// get previous and next button id

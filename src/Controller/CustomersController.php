@@ -1183,7 +1183,9 @@ class CustomersController extends AppController {
     //Secondary Home Method
     public function secondaryHome() {
 
+
         $customer_id = $this->Session->read('username');
+
 
         if ($customer_id == null) {
 
@@ -1213,6 +1215,10 @@ class CustomersController extends AppController {
         $this->loadModel('DmiFirms');
         $this->loadModel('DmiDistricts');
 
+        // to get export unit added by shankhpal shende on 08/11/2022 
+        $export_unit_status = $this->Customfunctions->checkApplicantExportUnit($customer_id);
+        
+		$this->set('export_unit_status',$export_unit_status);
 
         //Set Granr Date Condition
         $grantDateCondition = $this->Customfunctions->returnGrantDateCondition($customer_id);

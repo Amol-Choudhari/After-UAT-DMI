@@ -336,7 +336,7 @@
 		public function applicantCommentHistory($section_model,$customer_id){
 
 			$grantDateCondition = $this->Customfunctions->returnGrantDateCondition($customer_id);
-
+     
 			$application_type = $this->Session->read('application_type');
 			$Dmi_flow_wise_tables_list = TableRegistry::getTableLocator()->get('DmiFlowWiseTablesLists');
 			$Dmi_final_submit_tb = $Dmi_flow_wise_tables_list->find('all',array('conditions'=>array('application_type IS'=>$application_type)))->first();
@@ -345,8 +345,9 @@
 			$model = TableRegistry::getTableLocator()->get($section_model);
 
 			$section_form_details = $model->sectionFormDetails($customer_id);
-
+		
 			$fetch_comment_reply = $model->find('all',array('conditions'=>array('customer_id IS'=>$customer_id, $grantDateCondition ,'delete_ro_referred_back IS NULL'), 'order'=>'id'))->toArray();
+			
 			$this->Controller->set('fetch_comment_reply',$fetch_comment_reply);
 
 			$replied_id_list = $Dmi_final_submit->find('all',array('conditions'=>array('customer_id IS'=>$customer_id, $grantDateCondition, 'status'=>'replied','current_level'=>'level_3'),'order'=>'id DESC'))->first();
